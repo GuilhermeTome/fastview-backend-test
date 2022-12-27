@@ -1,0 +1,45 @@
+version: "3.8"
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: ./.docker/app/Dockerfile
+    restart: unless-stopped
+    working_dir: /var/www/
+    volumes:
+      - ./:/var/www
+      - ./.docker/php/backend.ini:/usr/local/etc/php/conf.d/backend.ini
+
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - ${APP_EXTERNAL_PORT}:80
+    volumes:
+      - ./:/var/www
+      - ./.docker/nginx:/etc/nginx/conf.d/
+
+  mysql:
+    # platform: linux/x86_64 # use if you are using a mac OS slicon arch M1
+    image: mysql:8
+    command: --default-authentication-plugin=mysql_native_password
+    ports:
+      - "${MYSQL_EXTERNAL_PORT}:3306"
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: root
+      SERVICE_NAME: mysql
+    volumes:
+      - ./.docker/mysql:/docker-entrypoint-initdb.d
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - ${PHPMYADMIN_EXTERNAL_PORT}:80
+    environment:
+      - PMA_ARBITRARY=1
+    depends_on:
+      - "mysql"
