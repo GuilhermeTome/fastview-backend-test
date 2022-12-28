@@ -29,8 +29,13 @@ class Auth
      */
     public static function user(): ?object
     {
+        $token = $_SESSION['loggued_token'] ?? '';
+        if (trim($token) === '') {
+            return null;
+        }
+
         $user = Database::getInstance()->select('users', '*', [
-            'token' => $_SESSION['loggued_token'] ?? ''
+            'token' => $token
         ]);
 
         return count($user) ? (object) $user[0] : null;
@@ -41,6 +46,6 @@ class Auth
      */
     public static function logout()
     {
-        unset($_SESSION['loggued_token']);
+        $_SESSION[] = [];
     }
 }
