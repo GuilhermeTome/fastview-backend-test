@@ -3,11 +3,18 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Libraries\Auth;
+use App\Libraries\Database;
+use App\Libraries\Hash;
+use App\Libraries\Http;
 
 final class AuthController extends Controller
 {
     public function login()
     {
+        if (Auth::user() !== null) {
+            return redirect(url('home'));
+        }
         return $this->view->render('login');
     }
 
@@ -18,13 +25,29 @@ final class AuthController extends Controller
             'password'
         ]);
 
-        dd($data);
+        $user = Database::getInstance()
+            ->select('users', '*', [
+                'email' => $data['email']
+            ])[0] ?? null;
 
-        // return $this->view->render('login');
+        if ($user === null || !Hash::attempt($data['password'], $user['password'] ?? '')) {
+            return response()
+                ->httpCode(Http::BAD_REQUEST)
+                ->json([
+                    'message' => 'Usuário e/ou senha incorretos'
+                ]);
+        }
+
+        Auth::login($user['id']);
+        return response()
+            ->json([
+                'url' => url('home')
+            ]);
     }
 
     public function logout()
     {
-        # code...
+        Auth::logout();
+        return redirect(url('login'));
     }
 }

@@ -1,8 +1,8 @@
-<?php $this->layout('layouts/app', ['title' => 'Login']) ?>
+<?php $this->layout('layouts/guest', ['title' => 'Login']) ?>
 
 <main class="d-flex justify-content-center align-items-center vh-100 text-bg-light">
 
-    <form class="d-flex align-items-center flex-column" method="POST" action="<?= url('login') ?>">
+    <form class="d-flex align-items-center flex-column" onsubmit="submitLoginForm('<?= url('login') ?>'); return false;">
         <div class="mb-4 px-4">
             <img src="<?= asset('images/fastview.png') ?>" alt="Logo Fastview" style="max-width: 240px;">
         </div>
@@ -22,3 +22,7 @@
         </p>
     </form>
 </main>
+
+<?php $this->start('scripts') ?>
+<script defer src="<?= asset('js/login.js') ?>"></script>
+<?php $this->end() ?>
