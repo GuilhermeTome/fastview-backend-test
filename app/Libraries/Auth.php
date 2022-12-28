@@ -46,6 +46,6 @@ class Auth
      */
     public static function logout()
     {
-        $_SESSION[] = [];
+        unset($_SESSION['loggued_token']);
     }
 }
